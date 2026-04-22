@@ -51,7 +51,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Baust Food',
+                          'Food',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w700,

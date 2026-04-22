@@ -11,7 +11,7 @@ class BaustFoodApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Baust Food',
+      title: 'Food',
       theme: AppTheme.lightTheme,
       home: const AuthGate(),
     );

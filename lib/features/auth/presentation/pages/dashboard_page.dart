@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:baust_food/features/profile/presentation/pages/profile_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -11,8 +12,17 @@ class DashboardPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Baust Food'),
+        title: const Text('Food'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const ProfilePage()),
+              );
+            },
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Profile',
+          ),
           IconButton(
             onPressed: () async {
               await Supabase.instance.client.auth.signOut();
