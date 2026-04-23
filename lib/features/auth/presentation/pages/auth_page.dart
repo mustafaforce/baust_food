@@ -1,3 +1,4 @@
+import 'package:baust_food/features/auth/presentation/pages/dashboard_page.dart';
 import 'package:baust_food/features/auth/presentation/pages/login_page.dart';
 import 'package:baust_food/features/auth/presentation/pages/signup_page.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,12 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   bool _isLogin = true;
+
+  void _navigateToDashboard() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const DashboardPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +66,7 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          _isLogin
-                              ? 'Login with your account'
-                              : 'Create account and get a Supabase magic link',
+                          _isLogin ? 'Login to your account' : 'Create account',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium,
                         ),
@@ -83,8 +88,14 @@ class _AuthPageState extends State<AuthPage> {
                             );
                           },
                           child: _isLogin
-                              ? const LoginPage(key: ValueKey('login'))
-                              : const SignupPage(key: ValueKey('signup')),
+                              ? LoginPage(
+                                  key: const ValueKey('login'),
+                                  onLoginSuccess: _navigateToDashboard,
+                                )
+                              : SignupPage(
+                                  key: const ValueKey('signup'),
+                                  onSignupSuccess: _navigateToDashboard,
+                                ),
                         ),
                         const SizedBox(height: 12),
                         TextButton(

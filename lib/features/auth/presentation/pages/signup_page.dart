@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final VoidCallback? onSignupSuccess;
+
+  const SignupPage({super.key, this.onSignupSuccess});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -25,54 +26,23 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  Future<void> _signup() async {
+  void _signup() {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    try {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-
-      await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-        data: {'full_name': _fullNameController.text.trim()},
-      );
-
-      // Send email magic link after signup so user can verify quickly.
-      await Supabase.instance.client.auth.signInWithOtp(
-        email: email,
-        shouldCreateUser: false,
-      );
-
+    Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created. Check your email for magic link.'),
-        ),
+        const SnackBar(content: Text('Account created (UI only)')),
       );
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Something went wrong. Please try again.'),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+      setState(() {
+        _isLoading = false;
+      });
+      widget.onSignupSuccess?.call();
+    });
   }
 
   @override

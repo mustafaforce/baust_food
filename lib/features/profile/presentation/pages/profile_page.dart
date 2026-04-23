@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,10 +14,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final _departmentController = TextEditingController();
   final _bioController = TextEditingController();
 
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _isSaving = false;
-
-  SupabaseClient get _client => Supabase.instance.client;
 
   @override
   void initState() {
@@ -35,119 +32,43 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  Future<void> _loadProfile() async {
-    final user = _client.auth.currentUser;
-    if (user == null) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-      return;
-    }
+  void _loadProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    try {
-      final existing = await _client
-          .from('profiles')
-          .select('full_name, phone, department, bio')
-          .eq('id', user.id)
-          .maybeSingle();
+    await Future.delayed(const Duration(milliseconds: 500));
 
-      if (existing == null) {
-        await _client.from('profiles').upsert({
-          'id': user.id,
-          'full_name': user.userMetadata?['full_name'] as String? ?? '',
-        }, onConflict: 'id');
-      }
-
-      final profile =
-          existing ??
-          {
-            'full_name': user.userMetadata?['full_name'] as String? ?? '',
-            'phone': '',
-            'department': '',
-            'bio': '',
-          };
-
-      if (!mounted) return;
-      setState(() {
-        _fullNameController.text = (profile['full_name'] as String?) ?? '';
-        _phoneController.text = (profile['phone'] as String?) ?? '';
-        _departmentController.text = (profile['department'] as String?) ?? '';
-        _bioController.text = (profile['bio'] as String?) ?? '';
-      });
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to load profile.')));
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    if (!mounted) return;
+    setState(() {
+      _fullNameController.text = '';
+      _phoneController.text = '';
+      _departmentController.text = '';
+      _bioController.text = '';
+      _isLoading = false;
+    });
   }
 
-  Future<void> _saveProfile() async {
+  void _saveProfile() {
     if (!_formKey.currentState!.validate()) return;
-
-    final user = _client.auth.currentUser;
-    if (user == null) return;
 
     setState(() {
       _isSaving = true;
     });
 
-    try {
-      final fullName = _fullNameController.text.trim();
-
-      await _client.from('profiles').upsert({
-        'id': user.id,
-        'full_name': fullName,
-        'phone': _nullIfEmpty(_phoneController.text),
-        'department': _nullIfEmpty(_departmentController.text),
-        'bio': _nullIfEmpty(_bioController.text),
-      }, onConflict: 'id');
-
-      await _client.auth.updateUser(
-        UserAttributes(data: {'full_name': fullName}),
-      );
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Profile updated.')));
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
-    } catch (_) {
+    Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile.')),
+        const SnackBar(content: Text('Profile saved (UI only)')),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
-  String? _nullIfEmpty(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return null;
-    return trimmed;
+      setState(() {
+        _isSaving = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = _client.auth.currentUser;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: _isLoading
@@ -166,10 +87,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      user?.email ?? '',
+                    const Text(
+                      'user@example.com',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: TextStyle(color: Colors.grey),
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
