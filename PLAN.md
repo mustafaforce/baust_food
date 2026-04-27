@@ -180,15 +180,15 @@ Pending → Accepted → Preparing → Ready → Delivered
 ## Phase 5: Polish & UX
 
 ### 5.1 UI/UX Improvements
-- [ ] App icon and splash screen
-- [ ] Bottom navigation bar
-- [ ] Loading states and indicators
-- [ ] Error handling and snackbars
-- [ ] Empty states
+- [x] App icon and splash screen
+- [x] Bottom navigation bar
+- [x] Loading states and indicators
+- [x] Error handling and snackbars
+- [x] Empty states
 
 ### 5.2 Settings & Profile
 - [ ] Profile picture upload (Supabase Storage)
-- [ ] Edit profile
+- [x] Edit profile
 - [ ] App settings page
 - [ ] Logout functionality
 

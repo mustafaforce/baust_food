@@ -59,7 +59,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BAUST Food'),
+        title: const Text('Food'),
         actions: [
           if (_role == 'customer')
             Consumer(

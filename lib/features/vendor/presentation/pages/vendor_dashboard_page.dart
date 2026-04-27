@@ -5,30 +5,59 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/vendor_provider.dart';
 import '../../../orders/data/models/order_model.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 import '../../../../core/utils/storage_helper.dart';
 
-class VendorDashboardPage extends ConsumerWidget {
+class VendorDashboardPage extends ConsumerStatefulWidget {
   const VendorDashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<VendorDashboardPage> createState() => _VendorDashboardPageState();
+}
+
+class _VendorDashboardPageState extends ConsumerState<VendorDashboardPage> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildOrdersBody(),
+          const VendorMenuPage(),
+          const ProfilePage(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            label: 'Orders',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.restaurant_menu),
+            label: 'Menu',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrdersBody() {
     final ordersAsync = ref.watch(vendorOrdersProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vendor Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.restaurant_menu),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const VendorMenuPage()),
-              );
-            },
-            tooltip: 'Manage Menu',
-          ),
-        ],
       ),
       body: ordersAsync.when(
         data: (orders) {

@@ -4,12 +4,70 @@ import '../providers/menu_provider.dart';
 import '../widgets/category_chips.dart';
 import '../widgets/food_item_card.dart';
 import 'food_detail_page.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
+import '../../../orders/presentation/pages/order_history_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
 
-class MenuPage extends ConsumerWidget {
+class MenuPage extends ConsumerStatefulWidget {
   const MenuPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MenuPage> createState() => _MenuPageState();
+}
+
+class _MenuPageState extends ConsumerState<MenuPage> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildMenuBody(),
+          const CartPage(),
+          const OrderHistoryPage(),
+          const ProfilePage(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        destinations: [
+          const NavigationDestination(
+            icon: Icon(Icons.restaurant_menu),
+            label: 'Menu',
+          ),
+          NavigationDestination(
+            icon: Consumer(
+              builder: (context, ref, child) {
+                final count = ref.watch(cartItemCountProvider);
+                return Badge(
+                  isLabelVisible: count > 0,
+                  label: Text('$count'),
+                  child: const Icon(Icons.shopping_cart),
+                );
+              },
+            ),
+            label: 'Cart',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.receipt_long),
+            label: 'Orders',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuBody() {
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final foodItemsAsync = ref.watch(foodItemsProvider);
