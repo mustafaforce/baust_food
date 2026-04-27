@@ -30,6 +30,6 @@ CREATE POLICY "Users can update own food images"
 -- Allow users to delete their own food images
 DROP POLICY IF EXISTS "Users can delete own food images" ON storage.objects;
 CREATE POLICY "Users can delete own food images"
-  ON storage.objects
+  ON storage.objectscha
   FOR DELETE
   USING (bucket_id = 'food-images' AND auth.uid() = owner);
