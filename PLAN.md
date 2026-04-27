@@ -115,49 +115,50 @@ Pending → Accepted → Preparing → Ready → Delivered
 - [ ] Category management (Admin/Vendor)
 
 ### 2.2 Search Functionality
-- [ ] Search bar on menu page
-- [ ] Search by food name, category
-- [ ] Search results page
+- [x] Search bar on menu page
+- [x] Search by food name, category
+- [x] Search results page
 
 ### 2.3 Cart System
-- [ ] Cart state management (Provider/Riverpod)
-- [ ] Add to cart functionality
-- [ ] Cart page with item list
-- [ ] Quantity update/remove items
-- [ ] Cart total calculation
+- [x] Cart state management (Provider/Riverpod)
+- [x] Add to cart functionality
+- [x] Cart page with item list
+- [x] Quantity update/remove items
+- [x] Cart total calculation
 
 ### 2.4 Order Placement
-- [ ] Order confirmation page
-- [ ] Delivery address input
-- [ ] Order summary
-- [ ] Create `orders` table in Supabase
-- [ ] Create `order_items` table in Supabase
-- [ ] Insert order to database
-- [ ] Order placement confirmation
+- [x] Order confirmation page
+- [x] Delivery address input
+- [x] Order summary
+- [x] Create `orders` table in Supabase
+- [x] Create `order_items` table in Supabase
+- [x] Insert order to database
+- [x] Order placement confirmation
 
 ### 2.5 Order History
-- [ ] Order history page for customers
-- [ ] Order status display (Pending, Preparing, Ready, Delivered, Cancelled)
-- [ ] Order details view
+- [x] Order history page for customers
+- [x] Order status display (Pending, Preparing, Ready, Delivered, Cancelled)
+- [x] Order details view
 
 ---
 
 ## Phase 3: Vendor Features
 
 ### 3.1 Vendor Dashboard
-- [ ] Vendor authentication check
-- [ ] Vendor dashboard page
-- [ ] View incoming orders
-- [ ] Order status update (Accept, Prepare, Mark Ready)
+- [x] Vendor authentication check
+- [x] Vendor dashboard page
+- [x] View incoming orders
+- [x] Order status update (Accept, Prepare, Mark Ready)
 
 ### 3.2 Menu Management
-- [ ] Add new food item
-- [ ] Edit existing food item
-- [ ] Delete food item
-- [ ] Toggle item availability
+- [x] Add new food item
+- [x] Edit existing food item
+- [x] Delete food item
+- [x] Toggle item availability
 
 ---
 
+<!-- let's ignore the admin feature for now 
 ## Phase 4: Admin Features
 
 ### 4.1 Admin Panel
@@ -172,7 +173,7 @@ Pending → Accepted → Preparing → Ready → Delivered
 ### 4.2 User Management
 - [ ] Assign/change user roles
 - [ ] View user details
-- [ ] Disable/enable users
+- [ ] Disable/enable users -->
 
 ---
 

@@ -56,7 +56,7 @@ class MenuRepository {
         .from('food_items')
         .select('*, categories(*)')
         .eq('is_available', true)
-        .ilike('name', '%$query%')
+        .or('name.ilike.%$query%,categories.name.ilike.%$query%')
         .order('name');
     return response.map((json) => FoodItem.fromJson(json)).toList();
   }

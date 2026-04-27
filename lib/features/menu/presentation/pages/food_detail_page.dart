@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/menu_provider.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
 
 class FoodDetailPage extends ConsumerWidget {
   final String foodItemId;
@@ -105,13 +106,14 @@ class FoodDetailPage extends ConsumerWidget {
                           width: double.infinity,
                           child: FilledButton.icon(
                             onPressed: () {
+                              ref.read(cartProvider.notifier).addItem(foodItem);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('${foodItem.name} added to cart'),
                                   action: SnackBarAction(
                                     label: 'View Cart',
                                     onPressed: () {
-                                      // Navigate to cart
+                                      Navigator.pushNamed(context, '/cart');
                                     },
                                   ),
                                 ),

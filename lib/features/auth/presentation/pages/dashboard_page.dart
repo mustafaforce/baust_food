@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:baust_food/features/profile/presentation/pages/profile_page.dart';
 import 'package:baust_food/features/menu/presentation/pages/menu_page.dart';
+import 'package:baust_food/features/cart/presentation/providers/cart_provider.dart';
+import 'package:baust_food/features/cart/presentation/pages/cart_page.dart';
+import 'package:baust_food/features/vendor/presentation/pages/vendor_dashboard_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -56,6 +60,26 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: AppBar(
         title: const Text('BAUST Food'),
         actions: [
+          if (_role == 'customer')
+            Consumer(
+              builder: (context, ref, child) {
+                final cartCount = ref.watch(cartItemCountProvider);
+                return IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CartPage()),
+                    );
+                  },
+                  icon: Badge(
+                    isLabelVisible: cartCount > 0,
+                    label: Text('$cartCount'),
+                    child: const Icon(Icons.shopping_cart_outlined),
+                  ),
+                  tooltip: 'Cart',
+                );
+              },
+            ),
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
@@ -101,8 +125,9 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Vendor Dashboard - Coming soon')),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const VendorDashboardPage()),
                 );
               },
               icon: const Icon(Icons.dashboard),
