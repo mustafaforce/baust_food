@@ -28,13 +28,18 @@ class OrderHistoryPage extends ConsumerWidget {
               ),
             );
           }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return _OrderCard(order: order);
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(customerOrdersProvider);
             },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return _OrderCard(order: order);
+              },
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

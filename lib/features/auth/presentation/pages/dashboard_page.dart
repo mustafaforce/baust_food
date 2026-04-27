@@ -6,6 +6,7 @@ import 'package:baust_food/features/menu/presentation/pages/menu_page.dart';
 import 'package:baust_food/features/cart/presentation/providers/cart_provider.dart';
 import 'package:baust_food/features/cart/presentation/pages/cart_page.dart';
 import 'package:baust_food/features/vendor/presentation/pages/vendor_dashboard_page.dart';
+import 'package:baust_food/features/orders/presentation/pages/order_history_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -161,6 +162,16 @@ class _DashboardPageState extends State<DashboardPage> {
               },
               icon: const Icon(Icons.restaurant_menu),
               label: const Text('Browse Menu'),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
+                );
+              },
+              icon: const Icon(Icons.receipt_long),
+              label: const Text('My Orders'),
             ),
           ],
         ),
