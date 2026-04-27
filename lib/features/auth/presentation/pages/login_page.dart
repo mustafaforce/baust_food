@@ -29,10 +29,38 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      if (response.user == null) {
+        throw Exception('Login failed');
+      }
+
+      // Check if vendor is approved
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('role, is_approved')
+          .eq('id', response.user!.id)
+          .maybeSingle();
+
+      if (profile != null && profile['role'] == 'vendor' && profile['is_approved'] != true) {
+        // Vendor not approved - sign out and show error
+        await Supabase.instance.client.auth.signOut();
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(
+          const SnackBar(
+            content: Text('Your vendor account is pending approval. Please wait for admin approval.'),
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(

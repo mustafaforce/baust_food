@@ -6,9 +6,18 @@ create table if not exists public.profiles (
   department text,
   bio text,
   avatar_url text,
+  role text not null default 'customer',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Add role column if it doesn't exist (for existing tables)
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_name = 'profiles' and column_name = 'role') then
+    alter table public.profiles add column role text not null default 'customer';
+  end if;
+end $$;
 
 alter table public.profiles enable row level security;
 
@@ -58,10 +67,11 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name)
+  insert into public.profiles (id, full_name, role)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data ->> 'full_name', '')
+    coalesce(new.raw_user_meta_data ->> 'full_name', ''),
+    coalesce(new.raw_user_meta_data ->> 'role', 'customer')
   )
   on conflict (id) do nothing;
 

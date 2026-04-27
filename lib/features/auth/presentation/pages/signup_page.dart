@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+enum SignupRole { customer, vendor }
+
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
 
@@ -14,6 +16,7 @@ class _SignupPageState extends State<SignupPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  SignupRole _selectedRole = SignupRole.customer;
   bool _isLoading = false;
 
   @override
@@ -35,23 +38,38 @@ class _SignupPageState extends State<SignupPage> {
     try {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
+      final fullName = _fullNameController.text.trim();
+      final isVendor = _selectedRole == SignupRole.vendor;
+      final role = isVendor ? 'vendor' : 'customer';
 
-      await Supabase.instance.client.auth.signUp(
+      final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
-        data: {'full_name': _fullNameController.text.trim()},
+        data: {
+          'full_name': fullName,
+          'role': role,
+        },
       );
 
-      // Send email magic link after signup so user can verify quickly.
-      await Supabase.instance.client.auth.signInWithOtp(
-        email: email,
-        shouldCreateUser: false,
-      );
+      if (response.user == null) {
+        throw Exception('Failed to create account');
+      }
+
+      // For vendors, update profile to set is_approved = false
+      if (isVendor) {
+        await Supabase.instance.client.from('profiles').update({
+          'is_approved': false,
+        }).eq('id', response.user!.id);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created. Check your email for magic link.'),
+        SnackBar(
+          content: Text(
+            isVendor
+                ? 'Account created. Admin will approve your vendor account.'
+                : 'Account created. Please check your email to verify.',
+          ),
         ),
       );
     } on AuthException catch (e) {
@@ -144,6 +162,58 @@ class _SignupPageState extends State<SignupPage> {
               return null;
             },
           ),
+          const SizedBox(height: 16),
+          const Text(
+            'Select your role:',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<SignupRole>(
+            segments: const [
+              ButtonSegment(
+                value: SignupRole.customer,
+                label: Text('Customer'),
+                icon: Icon(Icons.person),
+              ),
+              ButtonSegment(
+                value: SignupRole.vendor,
+                label: Text('Vendor'),
+                icon: Icon(Icons.storefront),
+              ),
+            ],
+            selected: {_selectedRole},
+            onSelectionChanged: (Set<SignupRole> selection) {
+              setState(() {
+                _selectedRole = selection.first;
+              });
+            },
+          ),
+          if (_selectedRole == SignupRole.vendor) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber[200]!),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Vendor accounts require admin approval before accessing the dashboard.',
+                      style: TextStyle(fontSize: 12, color: Colors.amber),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
