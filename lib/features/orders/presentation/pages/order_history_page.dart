@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/order_provider.dart';
 import '../../data/models/order_model.dart';
+import '../../../reviews/presentation/pages/rate_food_page.dart';
+import '../../../reviews/presentation/providers/review_provider.dart';
+import '../../../reviews/presentation/widgets/rating_stars.dart';
 
 class OrderHistoryPage extends ConsumerWidget {
   const OrderHistoryPage({super.key});
@@ -276,6 +279,7 @@ class OrderDetailPage extends ConsumerWidget {
   }
 
   Widget _buildOrderItemsCard(BuildContext context, Order order) {
+    final isDelivered = order.status == OrderStatus.delivered;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -287,18 +291,11 @@ class OrderDetailPage extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 12),
-            ...order.items!.map((item) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text('${item.foodItem?.name ?? "Item"} x ${item.quantity}'),
-                  ),
-                  Text('\$${(item.priceAtOrder * item.quantity).toStringAsFixed(2)}'),
-                ],
-              ),
-            )),
+            ...order.items!.map((item) => _OrderItemTile(
+                  order: order,
+                  item: item,
+                  isDelivered: isDelivered,
+                )),
           ],
         ),
       ),
@@ -328,5 +325,106 @@ class OrderDetailPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class _OrderItemTile extends ConsumerWidget {
+  final Order order;
+  final OrderItem item;
+  final bool isDelivered;
+
+  const _OrderItemTile({
+    required this.order,
+    required this.item,
+    required this.isDelivered,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final foodName = item.foodItem?.name ?? 'Item';
+    final reviewKey = OrderItemReviewKey(order.id, item.foodItemId);
+    final reviewAsync = isDelivered
+        ? ref.watch(customerOrderItemReviewProvider(reviewKey))
+        : null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text('$foodName x ${item.quantity}'),
+              ),
+              Text(
+                '\$${(item.priceAtOrder * item.quantity).toStringAsFixed(2)}',
+              ),
+            ],
+          ),
+          if (isDelivered && reviewAsync != null)
+            reviewAsync.when(
+              data: (review) {
+                if (review == null) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.star_outline, size: 18),
+                        label: const Text('Rate this item'),
+                        onPressed: () => _openRatePage(context, ref, foodName),
+                      ),
+                    ),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Row(
+                    children: [
+                      RatingStars(rating: review.rating.toDouble(), size: 18),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => _openRatePage(context, ref, foodName),
+                        child: const Text('Edit'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openRatePage(
+    BuildContext context,
+    WidgetRef ref,
+    String foodName,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RateFoodPage(
+          orderId: order.id,
+          foodItemId: item.foodItemId,
+          foodName: foodName,
+        ),
+      ),
+    );
+    ref.invalidate(customerOrderItemReviewProvider(
+      OrderItemReviewKey(order.id, item.foodItemId),
+    ));
   }
 }

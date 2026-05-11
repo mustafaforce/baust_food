@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/menu_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
+import '../../../reviews/presentation/providers/review_provider.dart';
+import '../../../reviews/presentation/widgets/rating_stars.dart';
 
 class FoodDetailPage extends ConsumerWidget {
   final String foodItemId;
@@ -72,6 +74,8 @@ class FoodDetailPage extends ConsumerWidget {
                           label: Text(foodItem.category!.name),
                           backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         ),
+                      const SizedBox(height: 12),
+                      _RatingHeader(foodItemId: foodItem.id),
                       const SizedBox(height: 16),
                       Text(
                         'Description',
@@ -123,6 +127,8 @@ class FoodDetailPage extends ConsumerWidget {
                             label: const Text('Add to Cart'),
                           ),
                         ),
+                      const SizedBox(height: 24),
+                      _ReviewsSection(foodItemId: foodItem.id),
                     ],
                   ),
                 ),
@@ -134,5 +140,119 @@ class FoodDetailPage extends ConsumerWidget {
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
+  }
+}
+
+class _RatingHeader extends ConsumerWidget {
+  final String foodItemId;
+  const _RatingHeader({required this.foodItemId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(ratingSummaryProvider(foodItemId));
+    return summaryAsync.when(
+      data: (summary) {
+        if (summary.ratingCount == 0) {
+          return Row(
+            children: [
+              const Icon(Icons.star_border, color: Colors.amber, size: 20),
+              const SizedBox(width: 4),
+              Text(
+                'No ratings yet',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            RatingStars(rating: summary.avgRating, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              '${summary.avgRating.toStringAsFixed(1)} (${summary.ratingCount})',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox(
+        height: 20,
+        width: 20,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _ReviewsSection extends ConsumerWidget {
+  final String foodItemId;
+  const _ReviewsSection({required this.foodItemId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reviewsAsync = ref.watch(foodReviewsProvider(foodItemId));
+    return reviewsAsync.when(
+      data: (reviews) {
+        if (reviews.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Reviews (${reviews.length})',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            ...reviews.take(20).map((r) => Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            RatingStars(rating: r.rating.toDouble(), size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                r.customerName?.isNotEmpty == true
+                                    ? r.customerName!
+                                    : 'Anonymous',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              _formatDate(r.createdAt),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (r.comment != null && r.comment!.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(r.comment!),
+                        ],
+                      ],
+                    ),
+                  ),
+                )),
+          ],
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+
+  String _formatDate(DateTime d) {
+    return '${d.day}/${d.month}/${d.year}';
   }
 }

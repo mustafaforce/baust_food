@@ -36,7 +36,7 @@ class OrderRepository {
   Future<List<Order>> getCustomerOrders(String customerId) async {
     final response = await _client
         .from('orders')
-        .select('*, order_items(*)')
+        .select('*, order_items(*, food_items(*, categories(*)))')
         .eq('customer_id', customerId)
         .order('created_at', ascending: false);
 
@@ -46,7 +46,7 @@ class OrderRepository {
   Future<Order?> getOrderById(String orderId) async {
     final response = await _client
         .from('orders')
-        .select('*, order_items(*)')
+        .select('*, order_items(*, food_items(*, categories(*)))')
         .eq('id', orderId)
         .maybeSingle();
 
