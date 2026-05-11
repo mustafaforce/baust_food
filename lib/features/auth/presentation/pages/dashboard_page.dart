@@ -1,3 +1,6 @@
+import 'package:baust_food/app/theme/design_tokens.dart';
+import 'package:baust_food/app/widgets/hero_band.dart';
+import 'package:baust_food/app/widgets/section_eyebrow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -53,13 +56,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
       );
     }
 
     return Scaffold(
+      backgroundColor: AppColors.canvas,
       appBar: AppBar(
-        title: const Text('Food'),
+        title: const Text('Baust Food'),
         actions: [
           if (_role == 'customer')
             Consumer(
@@ -74,6 +78,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   },
                   icon: Badge(
                     isLabelVisible: cartCount > 0,
+                    backgroundColor: AppColors.primary,
+                    textColor: AppColors.onPrimary,
                     label: Text('$cartCount'),
                     child: const Icon(Icons.shopping_cart_outlined),
                   ),
@@ -106,75 +112,136 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildVendorBody(BuildContext context, String? fullName) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              child: Icon(Icons.storefront, size: 40),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          HeroBand(
+            eyebrow: 'Vendor',
+            headline: 'Run\nYour Shop',
+            subhead: fullName == null
+                ? 'Manage your menu, track orders, deliver fast.'
+                : 'Welcome back, $fullName. Manage your menu and orders.',
+            trailing: const SpeechmarkOrb(icon: Icons.storefront),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SectionEyebrow(text: 'Quick Action'),
+                const SizedBox(height: AppSpacing.md),
+                const Text(
+                  'Open your dashboard',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const VendorDashboardPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.dashboard),
+                  label: const Text('Go to Vendor Dashboard'),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Welcome${fullName == null ? '' : ', $fullName'}',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            const Text('Vendor Dashboard'),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const VendorDashboardPage()),
-                );
-              },
-              icon: const Icon(Icons.dashboard),
-              label: const Text('Go to Vendor Dashboard'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCustomerBody(BuildContext context, String? fullName, String email) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome${fullName == null ? '' : ', $fullName'}',
-              style: Theme.of(context).textTheme.headlineSmall,
+  Widget _buildCustomerBody(
+      BuildContext context, String? fullName, String email) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          HeroBand(
+            eyebrow: 'Campus Food',
+            headline: fullName == null
+                ? 'Order\nIn Seconds'
+                : 'Hey ${fullName.split(' ').first}',
+            subhead: fullName == null
+                ? 'Browse vendors, build a cart, eat well.'
+                : 'Your campus kitchens are waiting. Browse and order in seconds.',
+            trailing: const SpeechmarkOrb(icon: Icons.restaurant_menu_rounded),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SectionEyebrow(text: 'What\'s next'),
+                const SizedBox(height: AppSpacing.md),
+                const Text(
+                  'Pick what you\'re hungry for',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const MenuPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.restaurant_menu),
+                  label: const Text('Browse Menu'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const OrderHistoryPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.receipt_long),
+                  label: const Text('My Orders'),
+                ),
+                const SizedBox(height: AppSpacing.xl2),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.canvasSoft,
+                    borderRadius: BorderRadius.circular(AppRadius.card),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.email_outlined,
+                          color: AppColors.body, size: 18),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          email,
+                          style: const TextStyle(
+                            color: AppColors.body,
+                            fontSize: 14,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(email, style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const MenuPage()),
-                );
-              },
-              icon: const Icon(Icons.restaurant_menu),
-              label: const Text('Browse Menu'),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
-                );
-              },
-              icon: const Icon(Icons.receipt_long),
-              label: const Text('My Orders'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

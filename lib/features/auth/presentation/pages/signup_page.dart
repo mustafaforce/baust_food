@@ -1,3 +1,4 @@
+import 'package:baust_food/app/theme/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -164,13 +165,15 @@ class _SignupPageState extends State<SignupPage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Select your role:',
+            'I AM A',
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           SegmentedButton<SignupRole>(
             segments: const [
               ButtonSegment(
@@ -192,22 +195,24 @@ class _SignupPageState extends State<SignupPage> {
             },
           ),
           if (_selectedRole == SignupRole.vendor) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.md),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: Colors.amber[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber[200]!),
+                color: AppColors.canvasSoft,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: const Border(
+                  left: BorderSide(color: AppColors.primary, width: 3),
+                ),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.amber, size: 20),
-                  SizedBox(width: 8),
+                  Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+                  SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'Vendor accounts require admin approval before accessing the dashboard.',
-                      style: TextStyle(fontSize: 12, color: Colors.amber),
+                      style: TextStyle(fontSize: 13, color: AppColors.ink),
                     ),
                   ),
                 ],

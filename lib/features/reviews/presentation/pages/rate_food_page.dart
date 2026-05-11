@@ -1,3 +1,5 @@
+import 'package:baust_food/app/theme/design_tokens.dart';
+import 'package:baust_food/app/widgets/section_eyebrow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/review_provider.dart';
@@ -26,6 +28,12 @@ class _RateFoodPageState extends ConsumerState<RateFoodPage> {
   bool _submitting = false;
   Review? _existing;
   bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadExisting());
+  }
 
   @override
   void dispose() {
@@ -96,49 +104,67 @@ class _RateFoodPageState extends ConsumerState<RateFoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    _loadExisting();
     return Scaffold(
-      appBar: AppBar(title: Text(_existing != null ? 'Edit Review' : 'Rate Food')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: AppColors.canvas,
+      appBar: AppBar(
+        title: Text(_existing != null ? 'Edit Review' : 'Rate Food'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xl2),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SectionEyebrow(text: 'How was it?'),
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              widget.foodName,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: RatingStars(
-                rating: _rating.toDouble(),
-                size: 48,
-                onChanged: (value) => setState(() => _rating = value),
+              widget.foodName.toUpperCase(),
+              style: const TextStyle(
+                color: AppColors.ink,
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                height: 1.05,
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl2),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl2,
+                vertical: AppSpacing.xl,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.canvasSoft,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+              ),
+              child: Center(
+                child: RatingStars(
+                  rating: _rating.toDouble(),
+                  size: 44,
+                  onChanged: (value) => setState(() => _rating = value),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl2),
             TextField(
               controller: _commentController,
               maxLines: 4,
               maxLength: 500,
               decoration: const InputDecoration(
                 labelText: 'Comment (optional)',
-                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
               ),
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _submitting ? null : _submit,
-                child: _submitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(_existing != null ? 'Update Review' : 'Submit Review'),
-              ),
+            const SizedBox(height: AppSpacing.lg),
+            FilledButton(
+              onPressed: _submitting ? null : _submit,
+              child: _submitting
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: AppColors.onPrimary),
+                    )
+                  : Text(_existing != null ? 'Update Review' : 'Submit Review'),
             ),
           ],
         ),

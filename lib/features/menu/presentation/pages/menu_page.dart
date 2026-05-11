@@ -1,3 +1,6 @@
+import 'package:baust_food/app/theme/design_tokens.dart';
+import 'package:baust_food/app/widgets/empty_state.dart';
+import 'package:baust_food/app/widgets/section_eyebrow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/menu_provider.dart';
@@ -22,6 +25,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.canvas,
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -47,6 +51,8 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                 final count = ref.watch(cartItemCountProvider);
                 return Badge(
                   isLabelVisible: count > 0,
+                  backgroundColor: AppColors.primary,
+                  textColor: AppColors.onPrimary,
                   label: Text('$count'),
                   child: const Icon(Icons.shopping_cart),
                 );
@@ -73,6 +79,7 @@ class _MenuPageState extends ConsumerState<MenuPage> {
     final foodItemsAsync = ref.watch(foodItemsProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.canvas,
       appBar: AppBar(
         title: const Text('Menu'),
         actions: [
@@ -88,7 +95,35 @@ class _MenuPageState extends ConsumerState<MenuPage> {
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Container(
+            color: AppColors.ink,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl2,
+              AppSpacing.lg,
+              AppSpacing.xl2,
+              AppSpacing.xl,
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionEyebrow(text: 'Order', color: AppColors.primary),
+                SizedBox(height: AppSpacing.sm),
+                Text(
+                  'WHAT\'S\nCOOKING',
+                  style: TextStyle(
+                    color: AppColors.onDark,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                    letterSpacing: -0.8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           categoriesAsync.when(
             data: (categories) => CategoryChips(
               categories: categories,
@@ -98,29 +133,40 @@ class _MenuPageState extends ConsumerState<MenuPage> {
               },
             ),
             loading: () => const SizedBox(
-              height: 50,
-              child: Center(child: CircularProgressIndicator()),
+              height: 52,
+              child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary)),
             ),
             error: (error, stack) => SizedBox(
-              height: 50,
+              height: 52,
               child: Center(child: Text('Error: $error')),
             ),
           ),
+          const SizedBox(height: AppSpacing.sm),
           Expanded(
             child: foodItemsAsync.when(
               data: (items) {
                 if (items.isEmpty) {
-                  return const Center(
-                    child: Text('No food items available'),
+                  return const EmptyState(
+                    icon: Icons.fastfood,
+                    title: 'Nothing here yet',
+                    message:
+                        'No food items available right now. Check back soon.',
                   );
                 }
                 return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.xl2,
+                    AppSpacing.sm,
+                    AppSpacing.xl2,
+                    AppSpacing.xl2,
+                  ),
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: AppSpacing.md,
+                    mainAxisSpacing: AppSpacing.md,
                   ),
                   itemCount: items.length,
                   itemBuilder: (context, index) {
@@ -131,7 +177,8 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => FoodDetailPage(foodItemId: item.id),
+                            builder: (_) =>
+                                FoodDetailPage(foodItemId: item.id),
                           ),
                         );
                       },
@@ -139,7 +186,8 @@ class _MenuPageState extends ConsumerState<MenuPage> {
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary)),
               error: (error, stack) => Center(child: Text('Error: $error')),
             ),
           ),
@@ -155,10 +203,30 @@ class FoodSearchDelegate extends SearchDelegate<String> {
   FoodSearchDelegate(this.ref);
 
   @override
+  ThemeData appBarTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.copyWith(
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.onDark,
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        hintStyle: TextStyle(color: AppColors.mute),
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+      ),
+      textTheme: theme.textTheme.copyWith(
+        titleLarge: const TextStyle(color: AppColors.onDark, fontSize: 18),
+      ),
+    );
+  }
+
+  @override
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(Icons.clear),
+        icon: const Icon(Icons.clear, color: AppColors.onDark),
         onPressed: () {
           query = '';
         },
@@ -169,7 +237,7 @@ class FoodSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back, color: AppColors.onDark),
       onPressed: () {
         close(context, '');
       },
@@ -188,7 +256,11 @@ class FoodSearchDelegate extends SearchDelegate<String> {
 
   Widget _buildSearchResults() {
     if (query.isEmpty) {
-      return const Center(child: Text('Enter a search term'));
+      return const EmptyState(
+        icon: Icons.search,
+        title: 'Search the menu',
+        message: 'Type a food name to find what you\'re craving.',
+      );
     }
 
     ref.read(searchQueryProvider.notifier).state = query;
@@ -197,31 +269,62 @@ class FoodSearchDelegate extends SearchDelegate<String> {
     return resultsAsync.when(
       data: (items) {
         if (items.isEmpty) {
-          return Center(child: Text('No results for "$query"'));
+          return EmptyState(
+            icon: Icons.search_off,
+            title: 'No results',
+            message: 'Nothing matches "$query".',
+          );
         }
-        return ListView.builder(
+        return ListView.separated(
+          padding: const EdgeInsets.all(AppSpacing.md),
           itemCount: items.length,
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, index) {
             final item = items[index];
-            return ListTile(
-              leading: item.imageUrl != null
-                  ? Image.network(item.imageUrl!, width: 50, height: 50, fit: BoxFit.cover)
-                  : const Icon(Icons.fastfood),
-              title: Text(item.name),
-              subtitle: Text('${item.category?.name ?? "Uncategorized"} - ৳${item.price.toStringAsFixed(2)}'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => FoodDetailPage(foodItemId: item.id),
-                  ),
-                );
-              },
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.canvas,
+                border: Border.all(color: AppColors.canvasSoft),
+                borderRadius: BorderRadius.circular(AppRadius.card),
+              ),
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  child: item.imageUrl != null
+                      ? Image.network(item.imageUrl!,
+                          width: 56, height: 56, fit: BoxFit.cover)
+                      : Container(
+                          width: 56,
+                          height: 56,
+                          color: AppColors.canvasSoft,
+                          child: const Icon(Icons.fastfood,
+                              color: AppColors.mute),
+                        ),
+                ),
+                title: Text(
+                  item.name,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Text(
+                  '${item.category?.name ?? "Uncategorized"} · ৳${item.price.toStringAsFixed(2)}',
+                  style: const TextStyle(color: AppColors.body),
+                ),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.mute),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FoodDetailPage(foodItemId: item.id),
+                    ),
+                  );
+                },
+              ),
             );
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary)),
       error: (error, _) => Center(child: Text('Error: $error')),
     );
   }

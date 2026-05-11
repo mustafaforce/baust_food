@@ -1,3 +1,5 @@
+import 'package:baust_food/app/theme/design_tokens.dart';
+import 'package:baust_food/app/widgets/section_eyebrow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/menu_provider.dart';
@@ -15,92 +17,153 @@ class FoodDetailPage extends ConsumerWidget {
     final foodItemAsync = ref.watch(foodItemDetailProvider(foodItemId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Details'),
-      ),
+      backgroundColor: AppColors.canvas,
       body: foodItemAsync.when(
         data: (foodItem) {
           if (foodItem == null) {
-            return const Center(child: Text('Food item not found'));
+            return const Scaffold(
+              body: Center(child: Text('Food item not found')),
+            );
           }
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (foodItem.imageUrl != null)
-                  Image.network(
-                    foodItem.imageUrl!,
-                    height: 250,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
-                else
-                  Container(
-                    height: 250,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                    child: const Icon(
-                      Icons.fastfood,
-                      size: 100,
-                      color: Colors.grey,
-                    ),
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 280,
+                pinned: true,
+                backgroundColor: AppColors.ink,
+                foregroundColor: AppColors.onDark,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (foodItem.imageUrl != null)
+                        Image.network(foodItem.imageUrl!, fit: BoxFit.cover)
+                      else
+                        Container(
+                          color: AppColors.ink,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.fastfood,
+                              size: 96, color: AppColors.mute),
+                        ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              AppColors.ink.withValues(alpha: 0.85),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: AppSpacing.xl2,
+                        right: AppSpacing.xl2,
+                        bottom: AppSpacing.xl2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (foodItem.category != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md,
+                                  vertical: AppSpacing.xxs,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.pillMd),
+                                ),
+                                child: Text(
+                                  foodItem.category!.name.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: AppColors.onPrimary,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              foodItem.name.toUpperCase(),
+                              style: const TextStyle(
+                                color: AppColors.onDark,
+                                fontSize: 36,
+                                fontWeight: FontWeight.w800,
+                                height: 1.0,
+                                letterSpacing: -0.8,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(
-                            child: Text(
-                              foodItem.name,
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                          ),
                           Text(
                             '৳${foodItem.price.toStringAsFixed(2)}',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
+                          _RatingHeader(foodItemId: foodItem.id),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      if (foodItem.category != null)
-                        Chip(
-                          label: Text(foodItem.category!.name),
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      const SizedBox(height: AppSpacing.xl2),
+                      const SectionEyebrow(text: 'About'),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        foodItem.description?.isNotEmpty == true
+                            ? foodItem.description!
+                            : 'No description available.',
+                        style: const TextStyle(
+                          color: AppColors.body,
+                          fontSize: 15,
+                          height: 1.6,
                         ),
-                      const SizedBox(height: 12),
-                      _RatingHeader(foodItemId: foodItem.id),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Description',
-                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        foodItem.description ?? 'No description available',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.xl2),
                       if (!foodItem.isAvailable)
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: Colors.red[100],
-                            borderRadius: BorderRadius.circular(8),
+                            color: AppColors.canvasSoft,
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.card),
+                            border: const Border(
+                              left: BorderSide(
+                                  color: AppColors.primary, width: 3),
+                            ),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.error_outline, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text(
-                                'Currently unavailable',
-                                style: TextStyle(color: Colors.red),
+                              Icon(Icons.error_outline,
+                                  color: AppColors.primary),
+                              SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  'Currently unavailable',
+                                  style: TextStyle(
+                                    color: AppColors.ink,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -113,9 +176,11 @@ class FoodDetailPage extends ConsumerWidget {
                               ref.read(cartProvider.notifier).addItem(foodItem);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('${foodItem.name} added to cart'),
+                                  content:
+                                      Text('${foodItem.name} added to cart'),
                                   action: SnackBarAction(
                                     label: 'View Cart',
+                                    textColor: AppColors.primary,
                                     onPressed: () {
                                       Navigator.pushNamed(context, '/cart');
                                     },
@@ -127,16 +192,17 @@ class FoodDetailPage extends ConsumerWidget {
                             label: const Text('Add to Cart'),
                           ),
                         ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.xl2),
                       _ReviewsSection(foodItemId: foodItem.id),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary)),
         error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
@@ -153,32 +219,47 @@ class _RatingHeader extends ConsumerWidget {
     return summaryAsync.when(
       data: (summary) {
         if (summary.ratingCount == 0) {
-          return Row(
+          return const Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star_border, color: Colors.amber, size: 20),
-              const SizedBox(width: 4),
+              Icon(Icons.star_border, color: AppColors.mute, size: 18),
+              SizedBox(width: AppSpacing.xs),
               Text(
-                'No ratings yet',
-                style: TextStyle(color: Colors.grey[600]),
+                'No ratings',
+                style: TextStyle(color: AppColors.body, fontSize: 13),
               ),
             ],
           );
         }
-        return Row(
-          children: [
-            RatingStars(rating: summary.avgRating, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              '${summary.avgRating.toStringAsFixed(1)} (${summary.ratingCount})',
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ],
+        return Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: AppColors.canvasSoft,
+            borderRadius: BorderRadius.circular(AppRadius.pillMd),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RatingStars(rating: summary.avgRating, size: 16),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                '${summary.avgRating.toStringAsFixed(1)} (${summary.ratingCount})',
+                style: const TextStyle(
+                  color: AppColors.ink,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         );
       },
       loading: () => const SizedBox(
         height: 20,
         width: 20,
-        child: CircularProgressIndicator(strokeWidth: 2),
+        child: CircularProgressIndicator(
+            strokeWidth: 2, color: AppColors.primary),
       ),
       error: (_, _) => const SizedBox.shrink(),
     );
@@ -198,55 +279,64 @@ class _ReviewsSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Reviews (${reviews.length})',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            ...reviews.take(20).map((r) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            RatingStars(rating: r.rating.toDouble(), size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                r.customerName?.isNotEmpty == true
-                                    ? r.customerName!
-                                    : 'Anonymous',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
+            SectionEyebrow(text: 'Reviews · ${reviews.length}'),
+            const SizedBox(height: AppSpacing.md),
+            ...reviews.take(20).map((r) => Container(
+                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.canvasSoft,
+                    borderRadius: BorderRadius.circular(AppRadius.card),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          RatingStars(rating: r.rating.toDouble(), size: 16),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              r.customerName?.isNotEmpty == true
+                                  ? r.customerName!
+                                  : 'Anonymous',
+                              style: const TextStyle(
+                                color: AppColors.ink,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
                             ),
-                            Text(
-                              _formatDate(r.createdAt),
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+                          ),
+                          Text(
+                            _formatDate(r.createdAt),
+                            style: const TextStyle(
+                              color: AppColors.body,
+                              fontSize: 12,
                             ),
-                          ],
-                        ),
-                        if (r.comment != null && r.comment!.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(r.comment!),
+                          ),
                         ],
+                      ),
+                      if (r.comment != null && r.comment!.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          r.comment!,
+                          style: const TextStyle(
+                            color: AppColors.ink,
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 )),
           ],
         );
       },
       loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(child: CircularProgressIndicator()),
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        child: Center(
+            child: CircularProgressIndicator(color: AppColors.primary)),
       ),
       error: (_, _) => const SizedBox.shrink(),
     );
