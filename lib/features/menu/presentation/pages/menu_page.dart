@@ -208,7 +208,7 @@ class FoodSearchDelegate extends SearchDelegate<String> {
                   ? Image.network(item.imageUrl!, width: 50, height: 50, fit: BoxFit.cover)
                   : const Icon(Icons.fastfood),
               title: Text(item.name),
-              subtitle: Text('${item.category?.name ?? "Uncategorized"} - \$${item.price.toStringAsFixed(2)}'),
+              subtitle: Text('${item.category?.name ?? "Uncategorized"} - ৳${item.price.toStringAsFixed(2)}'),
               onTap: () {
                 Navigator.push(
                   context,

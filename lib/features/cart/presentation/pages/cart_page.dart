@@ -94,7 +94,7 @@ class CartPage extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '\$${cartItem.foodItem.price.toStringAsFixed(2)}',
+                                      '৳${cartItem.foodItem.price.toStringAsFixed(2)}',
                                       style: TextStyle(color: Colors.grey[600]),
                                     ),
                                     const SizedBox(height: 8),
@@ -145,7 +145,7 @@ class CartPage extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    '\$${cartItem.totalPrice.toStringAsFixed(2)}',
+                                    '৳${cartItem.totalPrice.toStringAsFixed(2)}',
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                 ],
@@ -177,7 +177,7 @@ class CartPage extends ConsumerWidget {
                           children: [
                             const Text('Total:', style: TextStyle(fontSize: 18)),
                             Text(
-                              '\$${cartTotal.toStringAsFixed(2)}',
+                              '৳${cartTotal.toStringAsFixed(2)}',
                               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                           ],

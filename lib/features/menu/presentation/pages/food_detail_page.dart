@@ -60,7 +60,7 @@ class FoodDetailPage extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '\$${foodItem.price.toStringAsFixed(2)}',
+                            '৳${foodItem.price.toStringAsFixed(2)}',
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                               fontWeight: FontWeight.bold,

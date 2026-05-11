@@ -184,7 +184,7 @@ class _VendorOrderCard extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total: \$${order.totalAmount.toStringAsFixed(2)}',
+                  'Total: ৳${order.totalAmount.toStringAsFixed(2)}',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 if (order.status == OrderStatus.pending)
@@ -246,6 +246,26 @@ class _VendorOrderCard extends ConsumerWidget {
                       }
                     },
                     child: const Text('Mark Ready'),
+                  ),
+                if (order.status == OrderStatus.ready)
+                  FilledButton(
+                    onPressed: () async {
+                      try {
+                        await ref.read(updateOrderStatusProvider)(order.id, 'delivered');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Order marked as delivered')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Mark Delivered'),
                   ),
               ],
             ),
@@ -320,7 +340,7 @@ class VendorMenuPage extends ConsumerWidget {
                         ),
                   title: Text(item.name),
                   subtitle: Text(
-                    '\$${item.price.toStringAsFixed(2)} - ${item.isAvailable ? "Available" : "Unavailable"}',
+                    '৳${item.price.toStringAsFixed(2)} - ${item.isAvailable ? "Available" : "Unavailable"}',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -494,7 +514,7 @@ class _AddFoodItemPageState extends ConsumerState<AddFoodItemPage> {
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
-                  prefixText: '\$ ',
+                  prefixText: '৳ ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -733,7 +753,7 @@ class _EditFoodItemPageState extends ConsumerState<EditFoodItemPage> {
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
-                  prefixText: '\$ ',
+                  prefixText: '৳ ',
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

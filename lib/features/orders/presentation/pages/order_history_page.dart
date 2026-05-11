@@ -142,7 +142,7 @@ class _OrderCard extends StatelessWidget {
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   Text(
-                    '\$${order.totalAmount.toStringAsFixed(2)}',
+                    '৳${order.totalAmount.toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ],
@@ -314,7 +314,7 @@ class OrderDetailPage extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             Text(
-              '\$${order.totalAmount.toStringAsFixed(2)}',
+              '৳${order.totalAmount.toStringAsFixed(2)}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
@@ -359,7 +359,7 @@ class _OrderItemTile extends ConsumerWidget {
                 child: Text('$foodName x ${item.quantity}'),
               ),
               Text(
-                '\$${(item.priceAtOrder * item.quantity).toStringAsFixed(2)}',
+                '৳${(item.priceAtOrder * item.quantity).toStringAsFixed(2)}',
               ),
             ],
           ),

@@ -117,7 +117,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                                   Expanded(
                                     child: Text('${item.foodItem.name} x ${item.quantity}'),
                                   ),
-                                  Text('\$${item.totalPrice.toStringAsFixed(2)}'),
+                                  Text('৳${item.totalPrice.toStringAsFixed(2)}'),
                                 ],
                               ),
                             )),
@@ -130,7 +130,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                 ),
                                 Text(
-                                  '\$${cartTotal.toStringAsFixed(2)}',
+                                  '৳${cartTotal.toStringAsFixed(2)}',
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                 ),
                               ],

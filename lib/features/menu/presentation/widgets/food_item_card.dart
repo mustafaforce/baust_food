@@ -64,7 +64,7 @@ class FoodItemCard extends StatelessWidget {
                       ),
                     const Spacer(),
                     Text(
-                      '\$${foodItem.price.toStringAsFixed(2)}',
+                      '৳${foodItem.price.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
